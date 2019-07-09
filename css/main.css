@@ -1,0 +1,15 @@
+.square{
+  background-color: blue;
+  display: inline-block;
+  width: 3vw;
+  height: 3vw;
+  margin: 1px;
+}
+
+.row{
+  font-size: 0;
+}
+
+.player{
+  background-color: yellow;
+}
