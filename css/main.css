@@ -3,7 +3,7 @@
   display: inline-block;
   width: 3vw;
   height: 3vw;
-  margin: 1px;
+  /* margin: 1px; */
 }
 
 .row{
@@ -12,4 +12,8 @@
 
 .player{
   background-color: yellow;
+}
+
+.ground{
+  background-color: tan;
 }
