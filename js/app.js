@@ -97,9 +97,22 @@ const player = {
     }
   },
   shoot: function(){
-    const $bullet = $('<span class=bullet></span>')
-    $('.player').append($bullet);
-    $bullet.css({'left': $('.player').position().left + 30, 'top': $('.player').position().top + 10});
+    if(!this.dead){
+      const $bullet = $('<span class=bullet></span>')
+      $('.player').append($bullet);
+      $bullet.css({'left': $('.player').position().left + 30, 'top': $('.player').position().top + 10});
+
+      //bullet continues to move as long as left position is not equal to
+      //0 or 600, current size of game board with console open
+      const bulletInterval = setInterval(()=>{
+        console.log($bullet.position().left);
+        if($bullet.position().left <= 0 || $bullet.position().left >= 600) {
+          clearInterval(bulletInterval);
+          $bullet.hide();
+        }
+        $bullet.css('left',$bullet.position().left + 10);
+      },50);
+    }
   },
   move: function(direction){
     if(!this.dead)
