@@ -44,25 +44,31 @@ game.grabSquare(8, 6).addClass('ground');
 const player = {
   x: 0,
   y: 3,
-  gravity: 0.5,
-  gravitySpeed: 0,
   jumping: false,
-  falling: true,
+  falling: false,
   move: function(direction){
     switch(direction){
       case 'left':
         if(this.x > 0 && !game.isWall(this.x-1, this.y)){
         this.x--;
+        this.render();
         if(!this.jumping){
-          this.move('down');
+          if(!this.falling){
+            this.falling = true;
+            this.move('fall');
+          }
         }
       }
         break;
       case 'right':
         if(this.x < game.column-1 && !game.isWall(this.x+1, this.y)){
         this.x++;
+        this.render();
         if(!this.jumping){
-          this.move('down');
+          if(!this.falling){
+            this.falling = true;
+            this.move('fall');
+          }
         }
       }
         break;
@@ -71,31 +77,39 @@ const player = {
         if(this.y < game.row-2 && !game.isWall(this.x, this.y+1) && !game.isWall(this.x, this.y+2)){
           this.jumping = true;
           this.y += 2;
+          this.render();
           setTimeout(()=>{
             this.jumping = false;
-            this.move('down');
+            this.falling = true;
+            this.move('fall');
           },500);
         }
         break;
-      case 'down':
+      case 'fall':
+        // if(this.falling){
       //cannot move through a square with class ground
-        if(!game.isWall(this.x,this.y-1)){
-          this.y--;
-          this.render();
-          this.move('down');
-        }
-        break;
+          if(!game.isWall(this.x,this.y-1)){
+            console.log(game.isWall(this.x, this.y-1));
+            // setTimeout(()=>{
+              this.y--;
+              this.render();
+              this.move('fall');
+            // }, 100);
+          } else {
+            // this.falling = false;
+            this.render();
+          }
+          break;
       default:
         console.log("player.move dysfunctional");
-    }
-    this.render();
+      }
   },
   render: function(){
     $('.player').removeClass('player');
     $(`.square[x="${this.x}"][y="${this.y}"]`).addClass('player');
   }
 }
-
+player.render();
 $('body').on('keydown', function(e){
   console.log(e.which);
   switch(e.which){
@@ -110,7 +124,7 @@ $('body').on('keydown', function(e){
     player.move('right');
     break;
     case 40:
-    player.move('down');
+    player.move('fall');
     break;
     default:
       console.log("Move using the arrow keys");

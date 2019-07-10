@@ -1,5 +1,5 @@
 .square{
-  background-color: blue;
+  background-color: pink;
   display: inline-block;
   width: 3vw;
   height: 3vw;
@@ -11,9 +11,9 @@
 }
 
 .player{
-  background-color: yellow;
+  background-color: blue;
 }
 
 .ground{
-  background-color: tan;
+  background-color: grey;
 }
