@@ -129,21 +129,32 @@ const player = {
       this.restart();
     }
   },
-  shoot: function(){
+  shoot: function(num){
     if(!this.dead){
-      const $bullet = $('<span class=player-bullet></span>')
-      $('.player').append($bullet);
-      $bullet.css({'left': $('.player').position().left + 30, 'top': $('.player').position().top + 10});
+      const $playerBullet = $('<span class=player-bullet></span>')
+      $('.player').append($playerBullet);
+      $playerBullet.css({'left': $('.player').position().left + 30, 'top': $('.player').position().top + 10});
+      $enemyPosition = $('.enemy').position()
 
       //bullet continues to move as long as left position is not equal to
       //0 or 800, current size of game board with console open
       const bulletInterval = setInterval(()=>{
-        // console.log($bullet.position().left);
-        if($bullet.position().left <= 0 || $bullet.position().left >= 800) {
+        $playerBullet.css('left',$playerBullet.position().left + 10);
+        if($playerBullet.position().left <= 0 || $playerBullet.position().left >= 800) {
           clearInterval(bulletInterval);
-          $bullet.hide();
+          $playerBullet.remove();
         }
-        $bullet.css('left',$bullet.position().left + 10);
+        //check left position of bullet relative to enemy, using vw to pixel conversion
+        else if ($playerBullet.position().left > $enemyPosition.left && $playerBullet.position().left < $enemyPosition.left + 2.9*game.getVwPixels()){
+          //check top position of bullet relative to enemy, using vw to pixel conversion
+          if ($playerBullet.position().top > $enemyPosition.top && $playerBullet.position().top < $enemyPosition.top + 2.9*game.getVwPixels()){
+            $playerBullet.remove();
+            console.log("Hit!")
+            enemy.dead = true;
+            enemy.blink();
+            enemy.clear();
+          }
+        }
       },50);
     }
   },
@@ -218,26 +229,37 @@ const enemy = {
   // $enemyBullet: $('<span class=enemy-bullet></span>'),
   bulletFly: function(){
         //grab enemyBullet, stick it to enemy and adjust position
-      const $enemyBullet = $('<span class=enemy-bullet></span>');
+      const $enemyBullet = $(`<span class='enemy-bullet'></span>`);
       this.$enemy.append($enemyBullet);
       $enemyBullet.css({'left': this.$left - 5, 'top': this.$top + 10});
 
       // enemyBullet continues to move as long as left position is not equal to
       // 0 or 800, current size of game board with console open
       const bulletInterval = setInterval(()=>{
-        // console.log($enemyBullet.position().left);
-        if($enemyBullet.position().left <= 0 || $enemyBullet.position().left >= 800) {
-          clearInterval(bulletInterval);
-          $enemyBullet.hide();
-        }
         $enemyBullet.css('left',$enemyBullet.position().left - 10);
+        const $playerPosition = $('.player').position();
+        //check left position of bullet relative to enemy, using vw to pixel conversion
+        if($enemyBullet.position().left <= 0 || $enemyBullet.position().left >= 800) {
+        clearInterval(bulletInterval);
+        $enemyBullet.remove();
+        }
+        else if ($enemyBullet.position().left > $playerPosition.left && $enemyBullet.position().left < $playerPosition.left + 2.9*game.getVwPixels()){
+          //check top position of bullet relative to enemy, using vw to pixel conversion
+          if ($enemyBullet.position().top > $playerPosition.top && $enemyBullet.position().top < $playerPosition.top + 2.9*game.getVwPixels()){
+            $enemyBullet.remove()
+            console.log("Hit!")
+            player.dead = true;
+            player.blink();
+            player.restart();
+            }
+          }
       },50);
   },
   //takes a parameter num that determines how many bullets are shot in a burst
   shootBurst: function(num){
     let  shotCount = 0;
     const shootInterval = setInterval(()=>{
-      this.bulletFly();
+      this.bulletFly(shotCount);
       shotCount++;
       if (shotCount === num){
         clearInterval(shootInterval);
@@ -245,12 +267,12 @@ const enemy = {
     },150)
   },
   checkHit: function(){
-  const $playerBullet = $('.player-bullet');
+  const $playerBullet = $('#player-bullet');
   //check left position of bullet relative to enemy, using vw to pixel conversion
   if ($playerBullet.position().left > this.$left && $playerBullet.position().left < this.$left + 2.9*game.getVwPixels()){
     //check top position of bullet relative to enemy, using vw to pixel conversion
     if ($playerBullet.position().top > this.$top && $playerBullet.position().top < this.$top + 2.9*game.getVwPixels()){
-      $playerBullet.removeClass('player-bullet');
+      $playerBullet.remove();
       console.log("Hit!")
       this.dead = true;
       this.blink();
@@ -286,12 +308,12 @@ const enemy = {
   }
 }
 enemy.continuousAttack(3, 2);
-gameInterval = setInterval(()=>{
-  game.checkHits();
-  if (enemy.dead){
-    clearInterval(gameInterval);
-  }
-},50)
+// gameInterval = setInterval(()=>{
+//   game.checkHits();
+//   if (enemy.dead){
+//     clearInterval(gameInterval);
+//   }
+// },50)
 player.render();
 $('body').on('keydown', function(e){
   console.log(e.which);
