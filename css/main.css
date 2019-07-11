@@ -1,13 +1,13 @@
 .square{
-  background-color: pink;
+  background-color: lightblue;
   display: inline-block;
   width: 3vw;
   height: 3vw;
   /* margin: 1px; */
 }
 
-.bullet{
-  background-color: black;
+.player-bullet{
+  background-color: navy;
   width: 1vw;
   height: 1vw;
   border-radius: 50%;
@@ -23,7 +23,7 @@
 }
 
 .ground{
-  background-color: grey;
+  background-color: purple;
 }
 
 .hazard{
@@ -31,5 +31,17 @@
 }
 
 .goal{
+  background-color: gray;
+}
+
+.enemy{
   background-color: teal;
+}
+
+.enemy-bullet{
+  background-color: maroon;
+  width: 1vw;
+  height: 1vw;
+  border-radius: 50%;
+  position: absolute;
 }
