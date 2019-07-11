@@ -7,10 +7,6 @@ class Game {
     this.makeBoard(row, column);
     this.makeGround();
   }
-  checkHits = function() {
-    player.checkHit();
-    enemy.checkHit();
-  }
   getVwPixels = function(){
     const pixels = document.documentElement.clientWidth/100
     return pixels
@@ -18,7 +14,7 @@ class Game {
   makeBoard = function(rowNum, columnNum){
   for(let row = rowNum-1; row >= 0; row--) {
   const $rowDiv = $(`<div class=row row${row} ></div>`);
-      for (let square = 0; square <= columnNum-1; square++) {
+      for (let square = 0; square < columnNum; square++) {
         const $squareDiv = $(`<div class=square x=${square} y=${row}></div>`)
         $rowDiv.append($squareDiv);
         }
@@ -26,9 +22,11 @@ class Game {
     }
   }
   makeGround = function(){
-    $('.square').each(function(){
+    const $square = $('.square');
+    $square.each(function(){
       if ($(this).attr('y') < 3){
-      $(this).addClass('ground');}
+      $(this).addClass('ground');
+      }
     })
   }
   isWall = function(x, y){
@@ -44,7 +42,6 @@ class Game {
     return $(`.square[x="${x}"][y="${y}"]`);
   }
 }
-
 const game = new Game(10, 20, 3);
 game.grabSquare(4, 4).addClass('ground');
 game.grabSquare(2, 4).addClass('ground');
@@ -64,7 +61,10 @@ game.grabSquare(19, 3).addClass('goal');
 game.grabSquare(19, 4).addClass('goal');
 
 game.grabSquare(8, 7).addClass('enemy');
-
+// const loadGame = function(){
+//
+// }
+// loadGame();
 //must be able to reference game so the size of the grid is adaptable
 const player = {
   x: 0,
@@ -87,21 +87,6 @@ const player = {
       this.render();
       this.dead = false;
     },500);
-  },
-  checkHit: function(){
-  const $enemyBullet = $('.enemy-bullet');
-  const $playerPosition = $('.player').position();
-  //check left position of bullet relative to enemy, using vw to pixel conversion
-  if ($enemyBullet.position().left > $playerPosition.left && $enemyBullet.position().left < $playerPosition.left + 2.9*game.getVwPixels()){
-    //check top position of bullet relative to enemy, using vw to pixel conversion
-    if ($enemyBullet.position().top > $playerPosition.top && $enemyBullet.position().top < $playerPosition.top + 2.9*game.getVwPixels()){
-      $enemyBullet.removeClass('enemy-bullet');
-      console.log("Hit!")
-      this.dead = true;
-      this.blink();
-      this.restart();
-      }
-    }
   },
   blink: function(){
     let count = 0;
@@ -129,7 +114,9 @@ const player = {
       this.restart();
     }
   },
-  shoot: function(num){
+  shoot: function(){
+    const $gameGrid = $('.game-grid');
+    console.log($gameGrid.position().left);
     if(!this.dead){
       const $playerBullet = $('<span class=player-bullet></span>')
       $('.player').append($playerBullet);
@@ -140,7 +127,7 @@ const player = {
       //0 or 800, current size of game board with console open
       const bulletInterval = setInterval(()=>{
         $playerBullet.css('left',$playerBullet.position().left + 10);
-        if($playerBullet.position().left <= 0 || $playerBullet.position().left >= 800) {
+        if($playerBullet.position().left <= $gameGrid.position().left || $playerBullet.position().left >= $gameGrid.position().left + $gameGrid.width()) {
           clearInterval(bulletInterval);
           $playerBullet.remove();
         }
@@ -227,7 +214,7 @@ const enemy = {
   $left: $('.enemy').position().left,
   $top: $('.enemy').position().top,
   // $enemyBullet: $('<span class=enemy-bullet></span>'),
-  bulletFly: function(){
+  shoot: function(){
         //grab enemyBullet, stick it to enemy and adjust position
       const $enemyBullet = $(`<span class='enemy-bullet'></span>`);
       this.$enemy.append($enemyBullet);
@@ -259,26 +246,12 @@ const enemy = {
   shootBurst: function(num){
     let  shotCount = 0;
     const shootInterval = setInterval(()=>{
-      this.bulletFly(shotCount);
+      this.shoot(shotCount);
       shotCount++;
       if (shotCount === num){
         clearInterval(shootInterval);
       }
     },150)
-  },
-  checkHit: function(){
-  const $playerBullet = $('#player-bullet');
-  //check left position of bullet relative to enemy, using vw to pixel conversion
-  if ($playerBullet.position().left > this.$left && $playerBullet.position().left < this.$left + 2.9*game.getVwPixels()){
-    //check top position of bullet relative to enemy, using vw to pixel conversion
-    if ($playerBullet.position().top > this.$top && $playerBullet.position().top < this.$top + 2.9*game.getVwPixels()){
-      $playerBullet.remove();
-      console.log("Hit!")
-      this.dead = true;
-      this.blink();
-      this.clear();
-      }
-    }
   },
   clear: function(){
     this.$enemy.removeClass('enemy');
@@ -287,8 +260,10 @@ const enemy = {
   //and num that determines how many bullets per burst;
   continuousAttack: function(num, sec){
     const attack = setInterval(()=>{
-      this.shootBurst(num)
-      if(this.dead){
+      if(!this.dead){
+        this.shootBurst(num)
+      }
+      else {
         clearInterval(attack)
       }
     },sec*1000)
@@ -307,13 +282,8 @@ const enemy = {
     },200);
   }
 }
-enemy.continuousAttack(3, 2);
-// gameInterval = setInterval(()=>{
-//   game.checkHits();
-//   if (enemy.dead){
-//     clearInterval(gameInterval);
-//   }
-// },50)
+
+// enemy.continuousAttack(3, 2);
 player.render();
 $('body').on('keydown', function(e){
   console.log(e.which);

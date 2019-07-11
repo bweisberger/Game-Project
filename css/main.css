@@ -1,3 +1,24 @@
+*{
+  border: 1px red dotted;
+  margin: 0;
+}
+
+.container{
+  /* position: absolute; */
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-rows: 1fr 3fr 1fr;
+  background-color: black;
+  border: none;
+  margin: 0;
+  height: 100vh;
+}
+
+.game-grid{
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .square{
   background-color: lightblue;
   display: inline-block;
