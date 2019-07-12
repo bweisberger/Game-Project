@@ -4,6 +4,9 @@ class Game {
     this.row = row;
     this.column = column;
     this.floor = floor;
+    this.$gameGrid = $('.game-grid');
+    this.highScore = {};
+    this.colors = ['cyan', 'lawngreen', 'red', 'chartreuse', 'magenta', 'yellow', 'turquoise']
     this.makeBoard(row, column);
     this.makeGround();
   }
@@ -21,6 +24,34 @@ class Game {
   getVwPixels = function(){
     const pixels = document.documentElement.clientWidth/100
     return pixels
+  }
+
+  setHighScore = function(){
+    const $highScoreDisplay = $('<ul>High Scores</ul>');
+    this.$gameGrid.empty();
+
+    this.highScore[player.name] = player.score;
+    let count = 0;
+    for (let name in this.highScore){
+      count++;
+      const $score = $(`<li>${name}: ${this.highScore[name]}</li>`)
+      $score.css({'color': `${this.colors[count%this.colors.length]}`})
+      $highScoreDisplay.append($score)
+    }
+    this.$gameGrid.css({'place-self': 'start center'})
+    this.$gameGrid.append($highScoreDisplay);
+  }
+  gameOver = function(player){
+    const $gameOverMessage = $('<h1>Game Over</h1>');
+    this.$gameGrid.empty();
+    this.$gameGrid.append($gameOverMessage);
+    this.$gameGrid.css({'grid-row': '3',
+                        'grid-column': '2 / span 2',
+                        'color': 'white',
+                        'place-self': 'center'})
+    setTimeout(()=>{
+      game.setHighScore();
+    },2500)
   }
   makeBoard = function(rowNum, columnNum){
   for(let row = rowNum-1; row >= 0; row--) {
@@ -78,19 +109,28 @@ game.grabSquare(8, 7).addClass('enemy');
 // loadGame();
 //must be able to reference game so the size of the grid is adaptable
 const player = {
+  name: "Bill",
   x: 0,
   y: 3,
   score: 0,
   lives: 3,
-  $scoreDiv: $('.score'),
-  $livesDiv: $('.lives'),
+  $scoreDiv: $('#score'),
+  $livesDiv: $('#lives'),
   jumping: false,
   falling: false,
   dead: false,
+  enterName: function(){
+    const $gameGrid = $('.game-grid');
+    $gameGrid.empty();
+    $
+  },
   showLives: function(){
+    if (this.lives === 0){
+      game.gameOver(this);
+    }
     this.$livesDiv.empty();
+    this.$livesDiv.text("Lives: ")
     for (let lifeIcons = this.lives; lifeIcons > 0; lifeIcons--){
-      this.$livesDiv.text("Lives: ")
       this.$livesDiv.append('<div class=life-icon></div>');
     }
   },
@@ -138,11 +178,11 @@ const player = {
   checkForGoal: function(){
     if (game.isGoal(this.x, this.y)){
       this.restart();
-      setTimeout(()=>{
-        this.score += 1000;
-        this.showScore();
-      },100)
-
+      if (!this.dead){
+          this.dead = true;
+          this.score += 1000;
+          this.showScore();
+      }
     }
   },
   shoot: function(){
@@ -160,19 +200,21 @@ const player = {
         $playerBullet.css('left',$playerBullet.position().left + 10);
         if($playerBullet.position().left <= $gameGrid.position().left || $playerBullet.position().left >= $gameGrid.position().left + $gameGrid.width()) {
           clearInterval(bulletInterval);
-          this.score += 500
-          this.showScore();
           $playerBullet.remove();
         }
         //check left position of bullet relative to enemy, using vw to pixel conversion
         else if ($playerBullet.position().left > $enemyPosition.left && $playerBullet.position().left < $enemyPosition.left + 2.9*game.getVwPixels()){
           //check top position of bullet relative to enemy, using vw to pixel conversion
           if ($playerBullet.position().top > $enemyPosition.top && $playerBullet.position().top < $enemyPosition.top + 2.9*game.getVwPixels()){
-            $playerBullet.remove();
-            console.log("Hit!")
-            enemy.dead = true;
-            enemy.blink();
-            enemy.clear();
+            if (!enemy.dead){
+              $playerBullet.remove();
+              console.log("Hit!")
+              this.score += 500
+              this.showScore();
+              enemy.dead = true;
+              enemy.blink();
+              enemy.clear();
+            }
           }
         }
       },50);
@@ -250,6 +292,7 @@ const enemy = {
   shoot: function(){
         //grab enemyBullet, stick it to enemy and adjust position
       const $enemyBullet = $(`<span class='enemy-bullet'></span>`);
+      const $gameGrid = $('.game-grid')
       this.$enemy.append($enemyBullet);
       $enemyBullet.css({'left': this.$left - 5, 'top': this.$top + 10});
 
@@ -259,13 +302,14 @@ const enemy = {
         $enemyBullet.css('left',$enemyBullet.position().left - 10);
         const $playerPosition = $('.player').position();
         //check left position of bullet relative to enemy, using vw to pixel conversion
-        if($enemyBullet.position().left <= 0 || $enemyBullet.position().left >= 800) {
+        if($enemyBullet.position().left <= $gameGrid.position().left || $enemyBullet.position().left >= $gameGrid.position().left + $gameGrid.width()) {
           clearInterval(bulletInterval);
           $enemyBullet.remove();
         }
         else if ($enemyBullet.position().left > $playerPosition.left && $enemyBullet.position().left < $playerPosition.left + 2.9*game.getVwPixels()){
           //check top position of bullet relative to enemy, using vw to pixel conversion
           if ($enemyBullet.position().top > $playerPosition.top && $enemyBullet.position().top < $playerPosition.top + 2.9*game.getVwPixels()){
+            if (!player.dead){
             player.lives--
             player.showLives();
             $enemyBullet.remove()
@@ -275,6 +319,7 @@ const enemy = {
             player.restart();
             }
           }
+        }
       },50);
   },
   //takes a parameter num that determines how many bullets are shot in a burst
