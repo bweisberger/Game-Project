@@ -7,6 +7,17 @@ class Game {
     this.makeBoard(row, column);
     this.makeGround();
   }
+  // timer = function(){
+  //   let count = 0;
+  //   const gameTimer = setInterval(()=>{
+  //     if (player.dead || ){
+  //
+  //       player.score += 1000 - count*10
+  //       clearInterval(gameTimer);
+  //     }
+  //
+  //   },1000)
+  // }
   getVwPixels = function(){
     const pixels = document.documentElement.clientWidth/100
     return pixels
@@ -69,9 +80,21 @@ game.grabSquare(8, 7).addClass('enemy');
 const player = {
   x: 0,
   y: 3,
+  score: 0,
+  lives: 3,
+  $scoreDiv: $('.score'),
+  $livesDiv: $('.lives'),
   jumping: false,
   falling: false,
   dead: false,
+  showLives: function(){
+    for (let lifeIcons = this.lives; lifeIcons > 0; lifeIcons--){
+      this.$livesDiv.append('<div class=life-icon></div>');
+    }
+  },
+  showScore: function(){
+    this.$scoreDiv.text(`Score: ${this.score}`)
+  },
   render: function(){
     $('.player').removeClass('player');
     $(`.square[x="${this.x}"][y="${this.y}"]`).addClass('player');
@@ -105,13 +128,19 @@ const player = {
     if (game.isHazard(this.x, this.y - 1)){
       this.dead = true;
       this.blink();
+      this.lives--;
+      this.showLives();
       this.restart();
     }
   },
   checkForGoal: function(){
     if (game.isGoal(this.x, this.y)){
-      alert("You win");
       this.restart();
+      setTimeout(()=>{
+        this.score += 1000;
+        this.showScore();
+      },100)
+
     }
   },
   shoot: function(){
@@ -129,6 +158,8 @@ const player = {
         $playerBullet.css('left',$playerBullet.position().left + 10);
         if($playerBullet.position().left <= $gameGrid.position().left || $playerBullet.position().left >= $gameGrid.position().left + $gameGrid.width()) {
           clearInterval(bulletInterval);
+          this.score += 500
+          this.showScore();
           $playerBullet.remove();
         }
         //check left position of bullet relative to enemy, using vw to pixel conversion
@@ -282,9 +313,10 @@ const enemy = {
     },200);
   }
 }
-
-// enemy.continuousAttack(3, 2);
+enemy.continuousAttack(3, 2);
 player.render();
+player.showScore();
+player.showLives();
 $('body').on('keydown', function(e){
   console.log(e.which);
   switch(e.which){
