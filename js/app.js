@@ -88,7 +88,9 @@ const player = {
   falling: false,
   dead: false,
   showLives: function(){
+    this.$livesDiv.empty();
     for (let lifeIcons = this.lives; lifeIcons > 0; lifeIcons--){
+      this.$livesDiv.text("Lives: ")
       this.$livesDiv.append('<div class=life-icon></div>');
     }
   },
@@ -125,7 +127,7 @@ const player = {
     },100);
   },
   checkHurt: function(){
-    if (game.isHazard(this.x, this.y - 1)){
+    if (game.isHazard(this.x, this.y - 1) && !this.dead){
       this.dead = true;
       this.blink();
       this.lives--;
@@ -258,12 +260,14 @@ const enemy = {
         const $playerPosition = $('.player').position();
         //check left position of bullet relative to enemy, using vw to pixel conversion
         if($enemyBullet.position().left <= 0 || $enemyBullet.position().left >= 800) {
-        clearInterval(bulletInterval);
-        $enemyBullet.remove();
+          clearInterval(bulletInterval);
+          $enemyBullet.remove();
         }
         else if ($enemyBullet.position().left > $playerPosition.left && $enemyBullet.position().left < $playerPosition.left + 2.9*game.getVwPixels()){
           //check top position of bullet relative to enemy, using vw to pixel conversion
           if ($enemyBullet.position().top > $playerPosition.top && $enemyBullet.position().top < $playerPosition.top + 2.9*game.getVwPixels()){
+            player.lives--
+            player.showLives();
             $enemyBullet.remove()
             console.log("Hit!")
             player.dead = true;
