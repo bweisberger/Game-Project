@@ -3,12 +3,11 @@ class Game {
   constructor(row=10, column=10, floor=3){
     this.row = row;
     this.column = column;
-    this.floor = floor;
+    this.floor = floor
     this.$gameGrid = $('.game-grid');
     this.highScore = {};
     this.colors = ['cyan', 'lawngreen', 'red', 'chartreuse', 'magenta', 'yellow', 'turquoise']
-    this.makeBoard(row, column);
-    this.makeGround();
+    this.start();
   }
   // timer = function(){
   //   let count = 0;
@@ -25,7 +24,14 @@ class Game {
     const pixels = document.documentElement.clientWidth/100
     return pixels
   }
-
+  start = function(){
+    const $startDiv = $('<div class=start></div>');
+    $startDiv.append($('<img src=../images/MegamanLogo.png'));
+    this.$gameGrid.append($startDiv);
+    $gameGrid.animate()
+    this.makeBoard(this.row, this.column);
+    this.makeGround();
+  }
   setHighScore = function(){
     const $highScoreDisplay = $('<ul>High Scores</ul>');
     this.$gameGrid.empty();
@@ -362,6 +368,10 @@ const enemy = {
     },200);
   }
 }
+// enemy.continuousAttack(3, 2);
+// player.render();
+// player.showScore();
+// player.showLives();
 enemy.continuousAttack(3, 2);
 player.render();
 player.showScore();
@@ -372,7 +382,7 @@ $('body').on('keydown', function(e){
     case 37:
     player.move('left');
     break;
-    case 32:
+    case 90:
     if (!player.jumping){
     player.move('jump');}
     break;
@@ -384,6 +394,8 @@ $('body').on('keydown', function(e){
     break;
     case 16:
     player.shoot();
+    case 32:
+    game.pause();
     default:
       console.log("Move using the arrow keys");
   }
