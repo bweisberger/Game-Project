@@ -4,13 +4,47 @@
   font-family: 'Press Start 2p', cursive;
 }
 
+.start-page{
+  text-align: center;
+  color: white;
+  text-transform: uppercase;
+  grid-column: 2 / span 2;
+  grid-row: 3;
+}
+
+h2 {
+  line-height: 150%;
+}
+
+.player-select {
+  display: none;
+  line-height: 250%;
+  margin: 2vh auto;
+}
+
+.minimalist {
+  text-transform: lowercase;
+}
+
+/* #one-player{
+  margin: 2vh auto;
+}
+
+#two-player{
+  margin: 2vh
+} */
+
+.footnotes {
+
+}
+
 .container{
   font-family: 'Press Start 2p', cursive;
   /* position: absolute; */
   display: grid;
   grid-template-columns: 1fr 2fr 2fr 1fr;
   grid-template-rows: 1fr 1fr 4fr 1fr;
-  background-color: black;
+  background-color: rgb(40, 44, 51);
   border: none;
   margin: 0;
   height: 100vh;
@@ -34,33 +68,37 @@ li {
 
 }
 
-.stats{
+.stats {
   grid-row: 2;
   color: white;
   margin: 1vw 0 1vw 5vw;
   font-size: 3vh;
+  display: none;
 }
 
-#score{
+.press-start {
+  margin: 5vw auto;
+}
+
+#score {
   grid-column: 2;
   justify-self: start;
   align-self: end;
 }
 
-#lives{
-
+#lives {
   grid-column: 3;
   justify-self: start;
   align-self: end;
 }
 
-.game-grid{
+.game-grid {
   grid-column: 2 / span 2;
   grid-row: 3;
   justify-self: center;
 }
 
-.square{
+.square {
   background-color: lightblue;
   display: inline-block;
   width: 3vw;
@@ -68,7 +106,7 @@ li {
   /* margin: 1px; */
 }
 
-.player-bullet{
+.player-bullet {
   background-color: navy;
   width: 1vw;
   height: 1vw;
